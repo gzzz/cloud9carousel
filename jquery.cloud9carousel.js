@@ -143,6 +143,7 @@
     this.frontItemClass      = options.frontItemClass;
     this.onLoaded            = options.onLoaded;
     this.onRendered          = options.onRendered;
+    this.onAnimationStarted  = options.onAnimationStarted;
     this.onAnimationFinished = options.onAnimationFinished;
     this.onRefresh           = options.onRefresh;
 
@@ -169,6 +170,11 @@
       this.xRadius = (options.xRadius === null) ? $container.width()  / 2.3 : options.xRadius;
       this.yRadius = (options.yRadius === null) ? $container.height() / 6   : options.yRadius;
       this.farScale = options.farScale;
+    }
+
+    this.startAnimation = function(){
+      if( typeof this.onAnimationStarted === 'function' )
+        this.onAnimationStarted( this );
     }
 
     // Rotation:
@@ -263,6 +269,7 @@
 
     this.play = function() {
       if( this.timer === 0 )
+        this.startAnimation();
         this.scheduleNextFrame();
     }
 
@@ -390,6 +397,7 @@
 
       if( this.autoPlayAmount !== 0 ) this.enableAutoPlay();
       this.bindControls();
+      this.startAnimation();
       this.render();
 
       if( typeof this.onLoaded === 'function' )
@@ -398,6 +406,7 @@
 
     this.refresh = function() {
        this.initView();
+       this.startAnimation();
        this.render();
 
        if( typeof this.onRefresh === 'function' )
