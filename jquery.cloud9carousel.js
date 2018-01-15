@@ -156,8 +156,6 @@
       this.itemOptions.mirror = $.extend( { gap: 2 }, options.mirror );
     }
 
-    $container.css( { position: 'relative', overflow: 'hidden' } );
-
     // Rotation:
     //  *      0 : right
     //  *   Pi/2 : front
@@ -210,7 +208,7 @@
         self.pause();
 
         if( typeof self.onAnimationFinished === 'function' )
-          self.onAnimationFinished();
+          self.onAnimationFinished(self);
       } else {
         // Asymptotically approach the destination
         self.rotation = self.destRotation - rem / (1 + (self.speed * dt));
@@ -223,7 +221,7 @@
     this.scheduleNextFrame = function() {
       this.lastTime = time();
 
-      this.timer = this.smooth && cancelFrame ?
+      this.timer = this.smooth && requestFrame ?
         requestFrame( self.playFrame ) :
         setTimeout( self.playFrame, 1000 / this.fps );
     }
@@ -351,7 +349,7 @@
       }
     }
 
-    var items = $container.find( '.' + options.itemClass );
+    var items = $container.find( '> .' + options.itemClass );
 
     this.finishInit = function() {
       //
