@@ -126,27 +126,31 @@
     }
   }());
 
-  var Carousel = function( element, options ) {
+  var Carousel = function( $container, options ) {
     var self = this;
-    var $container = $(element);
-    this.items = [];
-    this.xOrigin = (options.xOrigin === null) ? $container.width()  * 0.5 : options.xOrigin;
-    this.yOrigin = (options.yOrigin === null) ? $container.height() * 0.1 : options.yOrigin;
-    this.xRadius = (options.xRadius === null) ? $container.width()  / 2.3 : options.xRadius;
-    this.yRadius = (options.yRadius === null) ? $container.height() / 6   : options.yRadius;
-    this.farScale = options.farScale;
-    this.rotation = this.destRotation = Math.PI/2; // start with the first item positioned in front
-    this.speed = options.speed;
-    this.smooth = options.smooth;
-    this.fps = options.fps;
-    this.timer = 0;
-    this.autoPlayAmount = options.autoPlay;
-    this.autoPlayDelay = options.autoPlayDelay;
-    this.autoPlayTimer = 0;
-    this.frontItemClass = options.frontItemClass;
-    this.onLoaded = options.onLoaded;
-    this.onRendered = options.onRendered;
+
+    this.$container          = $container;
+    this.options             = options;
+    this.items               = [];
+    this.rotation            = this.destRotation = Math.PI/2; // start with the first item positioned in front
+    this.speed               = options.speed;
+    this.smooth              = options.smooth;
+    this.fps                 = options.fps;
+    this.timer               = 0;
+    this.autoPlayAmount      = options.autoPlay;
+    this.autoPlayDelay       = options.autoPlayDelay;
+    this.autoPlayTimer       = 0;
+    this.frontItemClass      = options.frontItemClass;
+    this.onLoaded            = options.onLoaded;
+    this.onRendered          = options.onRendered;
     this.onAnimationFinished = options.onAnimationFinished;
+    this.onRefresh           = options.onRefresh;
+
+    this.xOrigin;
+    this.yOrigin;
+    this.xRadius;
+    this.yRadius;
+    this.farScale;
 
     this.itemOptions = {
       transforms: options.transforms
@@ -154,6 +158,17 @@
 
     if( options.mirror ) {
       this.itemOptions.mirror = $.extend( { gap: 2 }, options.mirror );
+    }
+
+    this.initView = function(){
+      var $container = this.$container,
+          options    = this.options;
+
+      this.xOrigin = (options.xOrigin === null) ? $container.width()  * 0.5 : options.xOrigin;
+      this.yOrigin = (options.yOrigin === null) ? $container.height() * 0.1 : options.yOrigin;
+      this.xRadius = (options.xRadius === null) ? $container.width()  / 2.3 : options.xRadius;
+      this.yRadius = (options.yRadius === null) ? $container.height() / 6   : options.yRadius;
+      this.farScale = options.farScale;
     }
 
     // Rotation:
@@ -352,6 +367,8 @@
     var items = $container.find( '> .' + options.itemClass );
 
     this.finishInit = function() {
+      this.initView();
+
       //
       // Wait until all images have completely loaded
       //
@@ -379,6 +396,14 @@
         this.onLoaded( this );
     };
 
+    this.refresh = function() {
+       this.initView();
+       this.render();
+
+       if( typeof this.onRefresh === 'function' )
+         this.onRefresh( this );
+    };
+
     this.initTimer = setInterval( function() { self.finishInit() }, 50 );
   }
 
@@ -387,6 +412,8 @@
   //
   $.fn.Cloud9Carousel = function( options ) {
     return this.each( function() {
+      var $this = $(this);
+
       /* For full list of options see the README */
       options = $.extend( {
         xOrigin: null,        // null: calculated automatically
@@ -406,7 +433,7 @@
         handle: 'carousel'
       }, options );
 
-      $(this).data( options.handle, new Carousel( this, options ) );
+      $this.data( options.handle, new Carousel( $this, options ) );
     } );
   }
 })( window.jQuery || window.Zepto );
