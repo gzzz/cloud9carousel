@@ -353,7 +353,7 @@
         $container.bind( 'click.cloud9', function( event ) {
           var hits = $(event.target).closest( '.' + options.itemClass );
 
-          if( hits.length !== 0 ) {
+          if( hits.length !== 0 && self.nearestItem() != hits[0].item) {
             var diff = self.goTo( self.items.indexOf( hits[0].item ) );
 
             // Suppress default browser action if the item isn't roughly in front
