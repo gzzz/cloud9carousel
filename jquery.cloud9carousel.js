@@ -224,19 +224,19 @@
       var dt = (now - self.lastTime) * 0.002;
       self.lastTime = now;
 
-      if( Math.abs(rem) < 0.003 ) {
+      if( Math.abs(rem) >= 0.003 ) {
+        // Asymptotically approach the destination
+        self.rotation = self.destRotation - rem / (1 + (self.speed * dt));
+        self.scheduleNextFrame();
+
+        self.render();
+      } else {
         self.rotation = self.destRotation;
         self.pause();
 
         if( typeof self.onAnimationFinished === 'function' )
           self.onAnimationFinished(self);
-      } else {
-        // Asymptotically approach the destination
-        self.rotation = self.destRotation - rem / (1 + (self.speed * dt));
-        self.scheduleNextFrame();
       }
-
-      self.render();
     }
 
     this.scheduleNextFrame = function() {
