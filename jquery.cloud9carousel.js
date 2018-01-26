@@ -338,6 +338,7 @@
       if( options.buttonLeft ) {
         options.buttonLeft.bind( 'click', function() {
           self.go( -1 );
+          self.sendSlideEvent( -1 );
           return false;
         } );
       }
@@ -345,13 +346,17 @@
       if( options.buttonRight ) {
         options.buttonRight.bind( 'click', function() {
           self.go( 1 );
+          self.sendSlideEvent( 1 );
           return false;
         } );
       }
 
       if( options.mouseWheel ) {
         $container.bind( 'mousewheel.cloud9', function( event, delta ) {
-          self.go( (delta > 0) ? 1 : -1 );
+          var offset = (delta > 0) ? 1 : -1;
+
+          self.go( offset );
+          self.sendSlideEvent( offset );
           return false;
         } );
       }
@@ -363,12 +368,23 @@
           if( hits.length !== 0 && self.nearestItem() != hits[0].item) {
             var diff = self.goTo( self.items.indexOf( hits[0].item ) );
 
+            self.sendSlideEvent( diff );
+
             // Suppress default browser action if the item isn't roughly in front
             if( Math.abs(diff) > 0.5 )
               event.preventDefault();
           }
         } );
       }
+    }
+
+    this.sendSlideEvent = function(offset) {
+      var slideEvent = $.Event('slide.cloud9', {
+        relatedTarget: this.items[this.nearestIndex() + offset],
+        carousel: this.$container
+      });
+
+      this.$container.trigger(slideEvent);
     }
 
     var items = $container.find( '> .' + options.itemClass );
